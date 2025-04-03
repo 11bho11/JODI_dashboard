@@ -1,0 +1,102 @@
+.dashboard_container {
+    width: 1600px;
+    height: 1200px;
+    margin: 10px auto;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+}
+
+
+.column_left {
+    width: 400px;
+    margin-left: 10px;
+    margin-right: 10px;
+    
+
+}
+
+
+.controls_box{
+    height: 550px;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+    
+
+
+}
+
+
+.summary_box{
+    height: 550px;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+    margin-top: 10px;
+   
+
+}
+
+
+
+.column_right {
+    width: 1150px;
+    margin-left: 10px;
+    margin-right: 10px;
+    border: 1px solid #cccccc;
+    border-radius: 10px;
+
+}
+
+
+.line_box{
+    height: 550px;
+    width: 1000px;
+
+
+
+}
+
+.bar_box{
+    height: 550px;
+    width: 500px;
+
+
+
+}
+
+.pie_box{
+    height: 500px;
+    width: 500px;
+
+
+
+}
+
+
+.dropdowns{
+    width: 300px;
+    margin: 10px
+}
+
+
+
+body {
+    background-color: #e7e7e7;
+}
+
+
+
+h5 {
+    color: #000000; 
+    font-size: 22px;
+    margin: 10px;
+}
+
+
+h6 { 
+    color: #000000; 
+    font-size: 16px;
+    margin: 10px;
+}
+
+

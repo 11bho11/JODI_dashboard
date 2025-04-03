@@ -4,260 +4,258 @@ import dash
 import dash_bootstrap_components as dbc
 
 
-############################# APP ################################################
+############################# LAYOUT ################################################
+title = html.Div(
+            html.H1('JODI', style={'textAlign': 'center'})
+            )
 
-title_tile = dbc.Row(
-        [
-            dbc.Col(
-                html.Label('1. Select Energy'), 
-                width=3
-                ),
-            dbc.Col(
-                html.Label('2. Select Country'), 
-                width=3
-                ),
-            dbc.Col(
-                html.Label('3. Select Time Period (YYYY-MM-DD)'), 
-                width=3
-                )
-        ]
-    )
-
-selection_tile = dbc.Row(
-        [
-            dbc.Col(
-                    dcc.RadioItems(
-                        sf.energy_list, 
-                        sf.energy_list[0],
-                        id='energy_id'),
-                        #width=3
+controls = html.Div([
+    html.Div([
+        html.H5('Select Country'),
+        dcc.Dropdown(
+                    options = [
+                        {'label': i, 'value': j} for i,j in sf.country_dict.items()
+                        ],
+                    value = 'GBR',
+                    id='country_id',
+                    className='dropdowns'
                     ),
-            #dbc.Col(
-            #        dcc.Dropdown(
-            #       id='unit_id',
-            #       #value = None
-            #       ),
-            #       width=3
-            #       ),
-            dbc.Col(
-                    dcc.Dropdown(
-                        [{'label': i, 'value': j} for i,j in sf.country_dict.items()],
-                        'GBR',
-                        id='country_id'),
-                        #width=3
-                        ),
-            dbc.Col(
-                    [
-                    #html.Div('From'),
-                    dcc.Input(
-                        value = '2023-01-01',
-                        placeholder ='From', 
-                        type='text',
-                        id = 'date_from_id'),
-                    ],
-                    #width=1.5
+    ]),
+    html.Div([
+        html.H5('Select Energy'),
+        dcc.Dropdown(
+                    options = sf.energy_list, 
+                    value = sf.energy_list[0],
+                    id='energy_id',
+                    className='dropdowns'
                     ),
-            dbc.Col(
-                    [
-                    #html.Div('To'),
-                    dcc.Input(
-                        value = '2025-01-01', 
-                        type='text',
-                        placeholder='To',
-                        id = 'date_to_id')    
-                    ],
-                    #width=1.5
-                    )
-        ]
+    ]),
+    html.Div([
+        html.H5('Select Unit'),
+        dcc.Dropdown(
+                   value=None,
+                   id='unit_id',
+                   className='dropdowns'
+                   ),
+    ]),
+    html.Div([
+        html.H5('Select Time Period'),
+        html.H6('From'),
+        dcc.Input(
+                value = '2023-01-01',
+                placeholder ='YYYY-MM-DD', 
+                type='text',
+                id = 'date_from_id',
+                className='dropdowns'
+                ),
+        html.H6('To'),
+        dcc.Input(
+                value = '2025-01-01', 
+                type='text',
+                placeholder='YYYY-MM-DD',
+                id = 'date_to_id',
+                className='dropdowns'
+                ) 
+    ])
+],
+className= 'controls_box'
 )
 
-upper_option_tile = dbc.Row(
-        [
-            dbc.Col(
-                    dcc.Dropdown(
-                   id='up_unit_id',
-                   value=None,
-                   #placeholder='Select Primary Oil Flow'
-                   ),
-                   width=3
-                   ),
-            dbc.Col(
-                    dcc.Dropdown(
-                   id='up_flow_id',
-                   #placeholder='Select Primary Oil Flow'
-                   ),
-                   width=3
-                   ),
-            dbc.Col(
-                    dcc.Dropdown(
-                    id='up_product_id',
-                    #placeholder='Select Primary Oil Product'
-                    ), 
-                    width=3
-                    )
-        ]
+
+summary = html.Div(
+    'summary',
+    className= 'summary_box'
     )
 
-upper_graph_tile = dbc.Row(
-        [
-            dbc.Col(dcc.Graph(figure={}, id='up_left_graph_id'), width=3),
-            dbc.Col(dcc.Graph(figure={}, id='up_right_graph_id'), width=9),
-        ]
-    )
 
-'''
-lower_option_tile = dbc.Row(
-        [
-            dbc.Col(
-                    dcc.Dropdown(
-                   id='lo_unit_id',
-                   value=None,
-                   #placeholder='Select Primary Oil Flow'
-                   ),
-                   width=3
-                   ),
-            dbc.Col(
-                    dcc.Dropdown(
-                   id='lo_flow_id',
-                   #placeholder='Select Secondary Oil Flow'
-                   ),
-                   width=3
-                   ),
-            dbc.Col(
-                    dcc.Dropdown(
-                    id='lo_product_id',
-                    #placeholder='Select Secondary Oil Product'
-                    ), 
-                    width=3
-                    ),
-            
-        ]
-    )
 
-lower_graph_tile = dbc.Row(
-        [
-            dbc.Col(dcc.Graph(figure={}, id='lo_left_graph_id'), width=6),
-            dbc.Col(dcc.Graph(figure={}, id='lo_right_graph_id'), width=6),
-        ]
-    )
-'''
+line_chart = html.Div([
+    dcc.Dropdown(
+                id='product_id',
+                className='dropdowns'
+                ), 
+    dcc.Graph(
+            figure={}, 
+            id='line_chart_id'
+            )
+],
+className= 'line_box'
+)
+
+bar_chart = html.Div([
+    dcc.Dropdown(
+                id='left_flow_id',
+                className='dropdowns'
+                ),
+    dcc.Graph(
+            figure={}, 
+            id='bar_chart_id'
+            )
+],
+className= 'bar_box'
+)
+
+pie_chart = html.Div([
+    dcc.Dropdown(
+                id='right_flow_id',
+                className='dropdowns'
+                ),
+    dcc.Graph(
+            figure={}, 
+            id='pie_chart_id'
+            )
+],
+className= 'pie_box'
+)
+
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY, dbc.icons.BOOTSTRAP])
 
-app.layout = dbc.Container(
-    [
-    html.H1('JODI', style={'textAlign': 'center'}),
-    html.Hr(),
-    title_tile,
-    html.Hr(),
-    selection_tile,
-    html.Hr(),
-    upper_option_tile,
-    html.Hr(),
-    upper_graph_tile,
-    #html.Hr(),
-    #lower_option_tile,
-    #html.Hr(),
-    #lower_graph_tile
-    ]
-)  
+app.layout = dbc.Container([
+    title,
+    html.Div([
+        html.Div([
+                controls,
+                summary
+                ],
+                className='column_left'
+                ),
 
+        html.Div([
+                line_chart,
+                html.Div([
+                        bar_chart,
+                        pie_chart
+                        ],
+                        style = {
+                        'display':'flex'
+                        })
+                ],
+                className='column_right'
+        )
+    ], 
+    style = {
+            'display':'flex',
+            })
+],
+fluid=True,
+className='dashboard_container'
+)
+
+
+
+############################# CALLBACKS ################################################
+
+@app.callback(
+    Output(component_id='product_id', component_property='style'),
+    Input(component_id='energy_id', component_property='value')
+)
+def hide_product_id(energy):
+    if energy == sf.energy_list[2]:
+        return {'display': 'none'} 
+    return {'display': 'block'}  
+
+'''
+@app.callback(
+    Output(component_id='right_flow_id', component_property='style'),
+    Input(component_id='energy_id', component_property='value')
+)
+def hide_flow_id(energy):
+    if energy in [sf.energy_list[0],sf.energy_list[1]]:
+        return {'display': 'none'}  
+    elif energy == sf.energy_list[2]:
+        return {'display': 'block'}  
+'''
 
 
 @callback(
-    Output(component_id='up_unit_id', component_property='options'),
+    Output(component_id='unit_id', component_property='options'),
     Input(component_id='energy_id', component_property='value'),
 )
-def update_up_unit(energy):
-    if energy == sf.energy_list[0]:
+def update_unit_id(energy):
+    if energy in [sf.energy_list[0],sf.energy_list[1]]:
         return [{'label': i, 'value': i} for i in sf.oil_units_dict.keys()]
-    elif energy == sf.energy_list[1]:
+    elif energy == sf.energy_list[2]:
         return [{'label': i, 'value': i} for i in sf.gas_units_dict.keys()]
 
+
+
 @callback(
-    Output(component_id='up_flow_id', component_property='options'),
+    Output(component_id='product_id', component_property='options'),
     Input(component_id='energy_id', component_property='value'),
 )
-def update_up_flow(energy):
-    if energy == 'OIL':
+def update_product_id(energy):
+    if energy == sf.energy_list[0]:
+        return [{'label': i, 'value': i} for i in list(sf.primary_oil_products_dict.keys())]
+    elif energy == sf.energy_list[1]:
+        return [{'label': i, 'value': i} for i in list(sf.secondary_oil_products_dict.keys())]
+    elif energy == sf.energy_list[2]:
+        return []
+
+
+@callback(
+    Output(component_id='left_flow_id', component_property='options'),
+    Input(component_id='energy_id', component_property='value'),
+)
+def update_left_flow_id(energy):
+    if energy == sf.energy_list[0]: 
         return [{'label': i, 'value': i} for i in sf.primary_oil_flow_dict.keys()]
-    elif energy == 'GAS':
+    elif energy == sf.energy_list[1]:
+        return [{'label': i, 'value': i} for i in sf.secondary_oil_flow_dict.keys()]
+    elif energy  == sf.energy_list[2]:
+        return [{'label': i, 'value': i} for i in sf.gas_flow_dict.keys()]
+    
+
+@callback(
+    Output(component_id='right_flow_id', component_property='options'),
+    Input(component_id='energy_id', component_property='value'),
+)
+def update_right_flow_id(energy):
+    if energy == sf.energy_list[0]: 
+        return [{'label': i, 'value': i} for i in sf.primary_oil_flow_dict.keys()]
+    elif energy == sf.energy_list[1]:
+        return [{'label': i, 'value': i} for i in sf.secondary_oil_flow_dict.keys()]
+    elif energy  == sf.energy_list[2]:
         return [{'label': i, 'value': i} for i in ['Imports','Exports']]
 
 
 @callback(
-    Output(component_id='up_product_id', component_property='options'),
-    Input(component_id='energy_id', component_property='value'),
-)
-def update_up_product(energy):
-    if energy == 'OIL':
-        return [{'label': i, 'value': i} for i in list(sf.primary_oil_products_dict.keys())]
-    elif energy == 'GAS':
-        return []
-
-
-
-'''
-@callback(
-    Output(component_id='lo_unit_id', component_property='options'),
-    Input(component_id='energy_id', component_property='value'),
-)
-def update_lo_unit(energy):
-    if energy == sf.energy_list[0]:
-        return [{'label': i, 'value': i} for i in sf.oil_units_dict.keys()]
-    elif energy == sf.energy_list[1]:
-        return []
-
-@callback(
-    Output(component_id='lo_flow_id', component_property='options'),
-    Input(component_id='energy_id', component_property='value'),
-)
-def update_lo_flow(energy):
-    if energy == 'OIL':
-        return [{'label': i, 'value': i} for i in sf.secondary_oil_flow_dict.keys()]
-    elif energy == 'GAS':
-        return []
-    
-
-@callback(
-    Output(component_id='lo_product_id', component_property='options'),
-    Input(component_id='energy_id', component_property='value'),
-)
-def update_lo_product(energy):
-    if energy == 'OIL':
-        return [{'label': i, 'value': i} for i in list(sf.secondary_oil_products_dict.keys())]
-    elif energy == 'GAS':
-        return []
-
-'''
-
-
-@callback(
-    Output(component_id='up_left_graph_id', component_property='figure'),
+    Output(component_id='line_chart_id', component_property='figure'),
     Input(component_id='energy_id', component_property='value'),
     Input(component_id='country_id', component_property='value'),
-    Input(component_id='up_unit_id', component_property='value'),
+    Input(component_id='unit_id', component_property='value'),
     Input(component_id='date_from_id', component_property='value'),
     Input(component_id='date_to_id', component_property='value'),
-    Input(component_id='up_flow_id', component_property='value'),
+    Input(component_id='product_id', component_property='value'),
 )
-def update_up_left_graph(energy, country, unit, date_from, date_to, flow):
-    return sf.make_up_left_graph(energy, country, unit, date_from, date_to, flow)
+def update_line_chart_id(energy, country, unit, date_from, date_to, product):
+    return sf.make_line_chart(energy, country, unit, date_from, date_to, product)
 
 
 @callback(
-    Output(component_id='up_right_graph_id', component_property='figure'),
+    Output(component_id='bar_chart_id', component_property='figure'),
     Input(component_id='energy_id', component_property='value'),
     Input(component_id='country_id', component_property='value'),
-    Input(component_id='up_unit_id', component_property='value'),
+    Input(component_id='unit_id', component_property='value'),
     Input(component_id='date_from_id', component_property='value'),
     Input(component_id='date_to_id', component_property='value'),
-    Input(component_id='up_product_id', component_property='value'),
+    Input(component_id='left_flow_id', component_property='value'),
+    Input(component_id='product_id', component_property='value'),
 )
-def update_up_right_graph(energy, country, unit, date_from, date_to, product):
-    return sf.make_up_right_graph(energy, country, unit, date_from, date_to, product)
+def update_bar_chart_id(energy, country, unit, date_from, date_to, flow, product):
+    return sf.make_bar_chart(energy, country, unit, date_from, date_to, flow, product)
 
-
+@callback(
+    Output(component_id='pie_chart_id', component_property='figure'),
+    Input(component_id='energy_id', component_property='value'),
+    Input(component_id='country_id', component_property='value'),
+    Input(component_id='unit_id', component_property='value'),
+    Input(component_id='date_from_id', component_property='value'),
+    Input(component_id='date_to_id', component_property='value'),
+    Input(component_id='right_flow_id', component_property='value'),
+)
+def update_pie_chart_id(energy, country, unit, date_from, date_to, flow):
+    return sf.make_pie_chart(energy, country, unit, date_from, date_to, flow)
 
 
 
