@@ -223,6 +223,93 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
         return fig
     
 
+    code_list = []
+
+    if energy == energy_list[0] and product:
+        for i,j in primary_oil_products_dict.items():
+            if j == 'TC':
+                continue
+
+            code = get_code(energy, flow, unit, i)
+            code_list.append(code)
+        
+            df_graph = get_nasdaq_table(code_id=code_list, 
+                                    country_id=country, 
+                                    date_from_id=date_from, 
+                                    date_to_id=date_to
+                                    )
+        
+            fig.add_trace(
+                go.Bar(
+                    x=df_graph.loc[df_graph['code'] == code, 'date'],
+                    y=df_graph.loc[df_graph['code'] == code, 'value'],
+                    name=i
+                ))
+        
+
+    if energy == energy_list[1] and product:
+        for i,j in secondary_oil_products_dict.items():
+            if j == 'TP':
+                continue
+
+            code = get_code(energy, flow, unit, i)
+            
+        
+            df_graph = get_nasdaq_table(code_id=code_list, 
+                                    country_id=country, 
+                                    date_from_id=date_from, 
+                                    date_to_id=date_to
+                                    )
+       
+            fig.add_trace(
+                go.Bar(
+                    x=df_graph.loc[df_graph['code'] == code, 'date'],
+                    y=df_graph.loc[df_graph['code'] == code, 'value'],
+                    name=i
+                ))
+
+
+    if energy == energy_list[2] and unit:
+        code = get_code(energy, flow, unit)
+        df_graph = get_nasdaq_table(
+                                    code_id=code, 
+                                    country_id=country, 
+                                    date_from_id=date_from, 
+                                    date_to_id=date_to
+                                    )
+        fig.add_trace(
+            go.Bar(
+                x=df_graph.loc[df_graph['code'] == code, 'date'],
+                y=df_graph.loc[df_graph['code'] == code, 'value'],
+            ))
+
+
+    fig.update_layout(barmode='stack',transition_duration=500, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), xaxis_title='Time', yaxis_title=unit)
+
+    return fig
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
+
+    fig = go.Figure()
+
+    if energy in [energy_list[0], energy_list[1]] and not flow and not unit:
+        fig.update_layout(title='Please select a flow/unit to view data.')
+        return fig
+    
+
     if energy in [energy_list[0], energy_list[1]] and product:
         code = get_code(energy, flow, unit, product)
         df_graph = get_nasdaq_table(
@@ -256,7 +343,7 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
     fig.update_layout(transition_duration=500, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), xaxis_title='Time', yaxis_title=unit)
 
     return fig
-
+'''
 
 
 
@@ -328,11 +415,12 @@ def make_pie_chart(energy, country, unit, date_from, date_to, flow):
             
                 code = get_code(energy, i, unit)
                 code_list.append(code)
+            
             df_graph = get_nasdaq_table(code_id=code_list, 
-                                            country_id=country, 
-                                            date_from_id=date_from, 
-                                            date_to_id=date_to
-                                            )
+                                        country_id=country, 
+                                        date_from_id=date_from, 
+                                        date_to_id=date_to
+                                        )
             
             for i,code in zip(['Pipeline Imports', 'LNG Imports'], code_list):
                 values = df_graph[df_graph['code'] == code]['value'].sum()

@@ -40,23 +40,35 @@ controls = html.Div([
     ]),
     html.Div([
         html.H5('Select Time Period'),
+    ]),
+    html.Div([
         html.H6('From'),
         dcc.Input(
                 value = '2023-01-01',
                 placeholder ='YYYY-MM-DD', 
                 type='text',
                 id = 'date_from_id',
-                className='dropdowns'
+                className='inputs'
                 ),
+        ],
+        style = {
+                'display':'flex'
+                }
+        ),
+    html.Div([
         html.H6('To'),
         dcc.Input(
                 value = '2025-01-01', 
-                type='text',
                 placeholder='YYYY-MM-DD',
+                type='text',
                 id = 'date_to_id',
-                className='dropdowns'
-                ) 
-    ])
+                className='inputs'
+                ), 
+    ],
+    style = {
+            'display':'flex'
+            }
+    )
 ],
 className= 'controls_box'
 )
@@ -76,10 +88,11 @@ line_chart = html.Div([
                 ), 
     dcc.Graph(
             figure={}, 
-            id='line_chart_id'
+            id='line_chart_id',
+            className='line_chart'
             )
 ],
-className= 'line_box'
+#className= 'line_box'
 )
 
 bar_chart = html.Div([
@@ -89,10 +102,11 @@ bar_chart = html.Div([
                 ),
     dcc.Graph(
             figure={}, 
-            id='bar_chart_id'
+            id='bar_chart_id',
+            className='bar_pie_chart'
             )
 ],
-className= 'bar_box'
+#className= 'bar_box'
 )
 
 pie_chart = html.Div([
@@ -102,10 +116,11 @@ pie_chart = html.Div([
                 ),
     dcc.Graph(
             figure={}, 
-            id='pie_chart_id'
+            id='pie_chart_id',
+            className='bar_pie_chart'
             )
 ],
-className= 'pie_box'
+#className= 'pie_box'
 )
 
 
