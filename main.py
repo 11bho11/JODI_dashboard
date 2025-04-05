@@ -53,7 +53,7 @@ controls = html.Div([
         ],
         style = {
                 'display':'flex'
-                }
+                },
         ),
     html.Div([
         html.H6('To'),
@@ -67,7 +67,7 @@ controls = html.Div([
     ],
     style = {
             'display':'flex'
-            }
+            },
     )
 ],
 className= 'controls_box'
