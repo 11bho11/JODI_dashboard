@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import pycountry
 import app_design as des
 from dotenv import load_dotenv
-
+import datetime as dt
 
 ###########################################DICTIONARIES#############################################
 energy_list = ['Primary Oil', 'Secondary Oil', 'Gas']
@@ -99,13 +99,13 @@ def get_key(key_id):
 
 
 def get_code(energy, flow, unit, product=None):
-    if energy in [energy_list[0], energy_list[1]]:  
+    if energy in ['Primary Oil', 'Secondary Oil']:  
         product_code = primary_oil_products_dict.get(product) or secondary_oil_products_dict.get(product)
         flow_code = primary_oil_flow_dict.get(flow) or secondary_oil_flow_dict.get(flow)
         unit_code = oil_units_dict.get(unit)
         return f'{product_code}{flow_code}{unit_code}'
 
-    elif energy == energy_list[2]:  
+    elif energy == 'Gas':  
         flow_code = gas_flow_dict.get(flow)
         unit_code = gas_units_dict.get(unit)
         return f'{unit_code}{flow_code}'
@@ -133,18 +133,61 @@ def get_nasdaq_table(
 
 
 
+def get_summary_data(energy, country):
+    now = dt.datetime.now().strftime("%Y-%m-%d")
+    
+    if energy == energy_list[0]:
+        code_list = ['CRPRKD','NGPRKD','TCRIKD','CRCSKD']
+        labels = ['Crude Production', 'NGL Production', 'Total Refinery Intake', 'Crude Closing Stock']
+        unit = 'kb/d'
+
+    if energy == energy_list[1]:
+        code_list = ['TPDEKD','TPCSKD']
+        labels = ['Total Oil Product Demand','Total Oil Product Closing Stock']
+        unit = 'kb/d'
+
+    if energy == energy_list[2]:
+        code_list = ['GCDO','GCPR','GCCS']
+        labels = ['Gas Demand', 'Gas Production','Gas Closing Stock']
+        unit = 'mcm'
+
+    df = get_nasdaq_table(
+                        code_id=code_list, 
+                        country_id=country, 
+                        date_from_id='2020-01-01', 
+                        date_to_id=now
+                        ) 
+    df = df[df['date'] == df['date'].max()]
+
+    results = []
+    for code, label in zip(code_list, labels):
+        value = df[df['code'] == code]['value'].values[0]
+        results.append(f'{label}: {value:,.0f} {unit}')
+
+    return results
+
+
+
+
 def make_line_chart(energy, country, unit, date_from, date_to, product):
 
     fig = go.Figure(layout=des.layout_simple)
-    df_graph = get_nasdaq_table(energy, country, date_from, date_to)
 
 
     #if energy == (energy_list[0] or energy_list[1]) and not unit:
     #    fig.update_layout(title='Please select unit to view data.')
 
+    if energy in [energy_list[0], energy_list[1]] and not product and not unit:
+        fig.update_layout(title='Please select a product to view all flows.')
+
     if energy in [energy_list[0], energy_list[1]] and not product:
         fig.update_layout(title='Please select a product to view all flows.')
+
+    if energy in [energy_list[0], energy_list[1]] and not unit:
+        fig.update_layout(title='Please select a unit to view all flows.')
     
+    if energy == energy_list[2] and not unit:
+        fig.update_layout(title='Please select a unit to view all flows.')
 
     code_list = []
 
@@ -165,9 +208,10 @@ def make_line_chart(energy, country, unit, date_from, date_to, product):
                     x=df_graph.loc[df_graph['code'] == code, 'date'],
                     y=df_graph.loc[df_graph['code'] == code, 'value'],
                     mode='lines',
-                    name=i)
+                    name=i,
+                    visible=True if i in ['Production', 'Imports', 'Exports','Stock Change', 'Refinery Intake', 'Closing Stock'] else 'legendonly')
                     )
-    
+        
     
     if energy == energy_list[1] and unit and product:
         for i in secondary_oil_flow_dict.keys():
@@ -186,8 +230,10 @@ def make_line_chart(energy, country, unit, date_from, date_to, product):
                     x=df_graph.loc[df_graph['code'] == code, 'date'],
                     y=df_graph.loc[df_graph['code'] == code, 'value'],
                     mode='lines',
-                    name=i)
+                    name=i,
+                    visible=True if i in ['Refinery Output','Imports', 'Exports','Stock Change', 'Demand', 'Closing Stock'] else 'legendonly')
                     )
+
 
     if energy == energy_list[2] and unit:
         for i in gas_flow_dict.keys():
@@ -206,10 +252,18 @@ def make_line_chart(energy, country, unit, date_from, date_to, product):
                     x=df_graph.loc[df_graph['code'] == code, 'date'],
                     y=df_graph.loc[df_graph['code'] == code, 'value'],
                     mode='lines',
-                    name=i)
+                    name=i,
+                    visible=True if i in ['Production', 'Total Imports', 'Total Exports','Stock Change', 'Gross Inland Deliveries (Calculated)', 'Closing Stock'] else 'legendonly')
                     )
-                    
-    fig.update_layout(transition_duration=500, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), xaxis_title='Time', yaxis_title=unit)
+    
+
+        
+    fig.update_layout(
+                    transition_duration=500, 
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), 
+                    xaxis_title='Time', 
+                    yaxis_title=unit, 
+                    )
     return fig
 
 
@@ -218,12 +272,20 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
 
     fig = go.Figure()
 
-    if energy in [energy_list[0], energy_list[1]] and not flow and not unit:
+    if energy and not flow and not unit:
         fig.update_layout(title='Please select a flow/unit to view data.')
         return fig
     
+    if energy and not unit:
+        fig.update_layout(title='Please select a unit to view data.')
+        return fig
+    
+    if energy and not flow :
+        fig.update_layout(title='Please select a flow to view data.')
+        return fig
 
     code_list = []
+    label_list = []
 
     if energy == energy_list[0] and product:
         for i,j in primary_oil_products_dict.items():
@@ -232,19 +294,21 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
 
             code = get_code(energy, flow, unit, i)
             code_list.append(code)
+            label_list.append(i)
         
-            df_graph = get_nasdaq_table(code_id=code_list, 
+        df_graph = get_nasdaq_table(code_id=code_list, 
                                     country_id=country, 
                                     date_from_id=date_from, 
                                     date_to_id=date_to
                                     )
         
+        for i,code in zip(label_list, code_list):
             fig.add_trace(
                 go.Bar(
-                    x=df_graph.loc[df_graph['code'] == code, 'date'],
-                    y=df_graph.loc[df_graph['code'] == code, 'value'],
-                    name=i
-                ))
+                        x=df_graph.loc[df_graph['code'] == code, 'date'],
+                        y=df_graph.loc[df_graph['code'] == code, 'value'],
+                        name=i
+                    ))
         
 
     if energy == energy_list[1] and product:
@@ -253,14 +317,16 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
                 continue
 
             code = get_code(energy, flow, unit, i)
-            
+            code_list.append(code)
+            label_list.append(i)
         
-            df_graph = get_nasdaq_table(code_id=code_list, 
+        df_graph = get_nasdaq_table(code_id=code_list, 
                                     country_id=country, 
                                     date_from_id=date_from, 
                                     date_to_id=date_to
                                     )
-       
+        
+        for i,code in zip(label_list, code_list):
             fig.add_trace(
                 go.Bar(
                     x=df_graph.loc[df_graph['code'] == code, 'date'],
@@ -291,69 +357,20 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
 
 
 
-
-
-
-
-
-
-
-
-
-'''
-def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
-
-    fig = go.Figure()
-
-    if energy in [energy_list[0], energy_list[1]] and not flow and not unit:
-        fig.update_layout(title='Please select a flow/unit to view data.')
-        return fig
-    
-
-    if energy in [energy_list[0], energy_list[1]] and product:
-        code = get_code(energy, flow, unit, product)
-        df_graph = get_nasdaq_table(
-                                    code_id=code, 
-                                    country_id=country, 
-                                    date_from_id=date_from, 
-                                    date_to_id=date_to
-                                    )
-        fig.add_trace(
-            go.Bar(
-                x=df_graph.loc[df_graph['code'] == code, 'date'],
-                y=df_graph.loc[df_graph['code'] == code, 'value'],
-            ))
-
-
-    if energy == energy_list[2] and unit:
-        code = get_code(energy, flow, unit)
-        df_graph = get_nasdaq_table(
-                                    code_id=code, 
-                                    country_id=country, 
-                                    date_from_id=date_from, 
-                                    date_to_id=date_to
-                                    )
-        fig.add_trace(
-            go.Bar(
-                x=df_graph.loc[df_graph['code'] == code, 'date'],
-                y=df_graph.loc[df_graph['code'] == code, 'value'],
-            ))
-
-
-    fig.update_layout(transition_duration=500, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), xaxis_title='Time', yaxis_title=unit)
-
-    return fig
-'''
-
-
-
-
 def make_pie_chart(energy, country, unit, date_from, date_to, flow):
 
     fig = go.Figure()
 
-    if energy in [energy_list[0], energy_list[1]] and not flow and not unit:
+    if energy and not flow and not unit:
         fig.update_layout(title='Please select a flow/unit to view data.')
+        return fig
+    
+    if energy and not unit:
+        fig.update_layout(title='Please select a unit to view data.')
+        return fig
+    
+    if energy and not flow :
+        fig.update_layout(title='Please select a flow to view data.')
         return fig
     
     labels_list = []

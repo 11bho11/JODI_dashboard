@@ -74,8 +74,10 @@ className= 'controls_box'
 )
 
 
-summary = html.Div(
-    'summary',
+summary = html.Div([
+    html.H5('Country Summary'),
+    html.Div(id='summary_id')
+    ],
     className= 'summary_box'
     )
 
@@ -86,11 +88,13 @@ line_chart = html.Div([
                 id='product_id',
                 className='dropdowns'
                 ), 
-    dcc.Graph(
-            figure={}, 
-            id='line_chart_id',
-            className='line_chart'
-            )
+    dcc.Loading(
+            type='circle',
+            children=dcc.Graph(
+                    figure={}, 
+                    id='line_chart_id',
+                    className='line_chart'
+                    ))
 ],
 #className= 'line_box'
 )
@@ -100,11 +104,13 @@ bar_chart = html.Div([
                 id='left_flow_id',
                 className='dropdowns'
                 ),
-    dcc.Graph(
-            figure={}, 
-            id='bar_chart_id',
-            className='bar_pie_chart'
-            )
+    dcc.Loading(
+            type='circle',
+            children=dcc.Graph(
+                    figure={}, 
+                    id='bar_chart_id',
+                    className='bar_pie_chart'
+                    ))
 ],
 #className= 'bar_box'
 )
@@ -114,11 +120,13 @@ pie_chart = html.Div([
                 id='right_flow_id',
                 className='dropdowns'
                 ),
-    dcc.Graph(
-            figure={}, 
-            id='pie_chart_id',
-            className='bar_pie_chart'
-            )
+    dcc.Loading(
+            type='circle',
+            children=dcc.Graph(
+                    figure={}, 
+                    id='pie_chart_id',
+                    className='bar_pie_chart'
+                    ))
 ],
 #className= 'pie_box'
 )
@@ -160,6 +168,18 @@ className='dashboard_container'
 
 
 ############################# CALLBACKS ################################################
+
+@app.callback(
+    Output(component_id='summary_id', component_property='children'),
+    Input(component_id='energy_id', component_property='value'),
+    Input(component_id='country_id', component_property='value')
+)
+def update_summary(energy, country):
+    summary = sf.get_summary_data(energy, country)
+    return [html.H6(line) for line in summary]
+
+
+
 
 @app.callback(
     Output(component_id='product_id', component_property='style'),
