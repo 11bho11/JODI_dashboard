@@ -8,9 +8,9 @@ Data frequency is monthly. The data feed is updated monthly, with a 2-3 month la
 
 
 ## Why did I build this?
-The world of commodities can be a very mysterious place, and data is king to making important decisions in the industry. There are only so many publicly available databases such as EIA, IEA, CFTC. 
+As someone interested in the commodities markets, there are frustratingly only a few public energy databases such as EIA, IEA, and CFTC. The JODI database was freely available, but was difficult to access or analyse effectively. 
 
-While JODI data is freely accessible on Nasdaq Data Link, there was no interface for data visualisation , unlike other public databases like the EIA. Therefore, I built this project which does the following:
+While JODI data is accessible on Nasdaq Data Link, there was no interface for data visualisation, unlike other public databases like the EIA. Therefore, I built this project which does the following:
 - Automatically fetches live data via the Nasdaq Data Table API
 - Allows for interactive filtering by product,flow, and country
 - Visualise clean data without having to download data manually
