@@ -1,14 +1,11 @@
 import nasdaqdatalink
 import os
 from dotenv import load_dotenv
-import pandas as pd
 import plotly.graph_objects as go
 import pycountry
-import app_design as des
-from dotenv import load_dotenv
+from components import app_design as des
 import datetime as dt
 from dash import html
-import datetime
 
 ###########################################DICTIONARIES#############################################
 energy_list = ['Primary Oil', 'Secondary Oil', 'Gas']
