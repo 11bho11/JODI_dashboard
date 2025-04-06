@@ -40,7 +40,7 @@ You will need to register an account to get an API key which is needed to run th
 Run the main.py script to start the Dash app. Open your browser to view the dashboard.
 
 ## App Details
-![image](https://github.com/user-attachments/assets/bb7a1ab2-9025-46c9-8fa8-867d74266fd7)
+![image](https://github.com/user-attachments/assets/888fbbca-acdb-4c96-8e3a-b15e56d2f386)
 - Sidebar controls located at the top-left which lets you filter by country, energy, unit, and dates.
 - Below the controls you can find a summary box with the most up-to-date or relevant information.
 - Charts on the right enables you to filter by both product and flow to show product breakdown by flow, or flow breakdown by product.
