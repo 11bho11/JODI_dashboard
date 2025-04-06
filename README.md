@@ -22,7 +22,7 @@ You will need to register an account to get an API key which is needed to run th
 ### Setup
 1. Clone the repository
    ```
-   git clone https://github.com/benjaminho11/JODI_dashboard.git
+   git clone https://github.com/11bho11/JODI_dashboard.git
    ```
    
 2. Install required Python packages
@@ -30,11 +30,18 @@ You will need to register an account to get an API key which is needed to run th
    pip install -r requirements.txt
    ```
    
-3. Set up your environment variables in a `.env` file to store API credentials securely.
+3. Save your API key in an `.env` file to store private credentials securely. Save as the following:
+   ```
+   nasdaq_api_key = "YOUR_API_KEY"
+   ```
 
 ### Usage
 Run the main.py script and the app will be executed on your local machine.
 
 ## App Details
+There is a filter box located at the top-left which lets you filter by country, energy, unit, and dates.
 
-## App Screenshots
+Below the filter box you can find a summary box with the energy products' most relevant or important information.
+
+Both charts on the right enables you to filter by both product and flow.
+
