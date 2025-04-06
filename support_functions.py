@@ -7,6 +7,8 @@ import pycountry
 import app_design as des
 from dotenv import load_dotenv
 import datetime as dt
+from dash import html
+import datetime
 
 ###########################################DICTIONARIES#############################################
 energy_list = ['Primary Oil', 'Secondary Oil', 'Gas']
@@ -135,36 +137,42 @@ def get_nasdaq_table(
 
 def get_summary_data(energy, country):
     now = dt.datetime.now().strftime("%Y-%m-%d")
-    
+
     if energy == energy_list[0]:
-        code_list = ['CRPRKD','NGPRKD','TCRIKD','CRCSKD']
-        labels = ['Crude Production', 'NGL Production', 'Total Refinery Intake', 'Crude Closing Stock']
-        unit = 'kb/d'
+        code_list = ['CRPRKD','NGPRKD','TCRIKD','CRCSKB']
+        labels = {'Crude Production':'kb/d', 
+                  'NGL Production':'kb/d', 
+                  'Total Refinery Intake':'kb/d', 
+                  'Crude Closing Stock':'kbbl'}
 
     if energy == energy_list[1]:
-        code_list = ['TPDEKD','TPCSKD']
-        labels = ['Total Oil Product Demand','Total Oil Product Closing Stock']
-        unit = 'kb/d'
-
+        code_list = ['TPDEKD','TPCSKB']
+        labels = {'Total Oil Product Demand':'kb/d',
+                  'Total Oil Product Closing Stock':'kbbl'}
+       
     if energy == energy_list[2]:
         code_list = ['GCDO','GCPR','GCCS']
-        labels = ['Gas Demand', 'Gas Production','Gas Closing Stock']
-        unit = 'mcm'
+        labels = {'Gas Demand':'mcm', 
+                  'Gas Production':'mcm',
+                  'Gas Closing Stock':'mcm'}
 
     df = get_nasdaq_table(
                         code_id=code_list, 
                         country_id=country, 
-                        date_from_id='2020-01-01', 
+                        date_from_id='2024-01-01', 
                         date_to_id=now
                         ) 
-    df = df[df['date'] == df['date'].max()]
+    
+    max_date = df['date'].max()
+    df = df[df['date'] == max_date]
+    max_date_str = df['date'].max().strftime('%Y-%m')
 
     results = []
-    for code, label in zip(code_list, labels):
+    for code, (key, unit) in zip(code_list, labels.items()):
         value = df[df['code'] == code]['value'].values[0]
-        results.append(f'{label}: {value:,.0f} {unit}')
+        results.append(f'{key}: {value:,.0f} {unit}')
 
-    return results
+    return results, max_date_str
 
 
 
@@ -172,10 +180,6 @@ def get_summary_data(energy, country):
 def make_line_chart(energy, country, unit, date_from, date_to, product):
 
     fig = go.Figure(layout=des.layout_simple)
-
-
-    #if energy == (energy_list[0] or energy_list[1]) and not unit:
-    #    fig.update_layout(title='Please select unit to view data.')
 
     if energy in [energy_list[0], energy_list[1]] and not product and not unit:
         fig.update_layout(title='Please select a product to view all flows.')
@@ -270,7 +274,7 @@ def make_line_chart(energy, country, unit, date_from, date_to, product):
 
 def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
 
-    fig = go.Figure()
+    fig = go.Figure(layout=des.layout_simple)
 
     if energy and not flow and not unit:
         fig.update_layout(title='Please select a flow/unit to view data.')
@@ -357,6 +361,110 @@ def make_bar_chart(energy, country, unit, date_from, date_to, flow, product):
 
 
 
+def make_percentage(energy, country, unit, date_from, date_to, flow):
+    
+    labels_list = []
+    values_list = []
+    code_list = []
+    results = []
+
+    if energy == energy_list[0] and flow:
+        for i,j in primary_oil_products_dict.items():
+            if j == 'TC':
+                continue
+
+            code = get_code(energy, flow, unit, i)
+            code_list.append(code)
+            labels_list.append(i)
+        
+        df = get_nasdaq_table(
+                            code_id=code_list, 
+                            country_id=country, 
+                            date_from_id=date_from, 
+                            date_to_id=date_to
+                            )
+
+        for code in (code_list):
+            values = df[df['code'] == code]['value'].sum()
+            values_list.append(values)
+
+        for label, value in zip(labels_list,values_list):
+            percentages = value/sum(values_list)
+            results.append(f'{label}: {value:,.0f} ({percentages:.1%})')
+                
+        
+
+
+    if energy == energy_list[1] and flow:
+        for i,j in secondary_oil_products_dict.items():
+            if j == 'TP':
+                continue
+
+            code = get_code(energy, flow, unit, i)
+            code_list.append(code)
+            labels_list.append(i)
+            
+        df = get_nasdaq_table(
+                            code_id=code_list, 
+                            country_id=country, 
+                            date_from_id=date_from, 
+                            date_to_id=date_to
+                            )
+
+        for code in (code_list):
+            values = df[df['code'] == code]['value'].sum()
+            values_list.append(values)
+
+        for label, value in zip(labels_list,values_list):
+            percentages = value/sum(values_list)
+            results.append(f'{label}: {value:,.0f} ({percentages:.1%})')
+
+
+    if energy == energy_list[2] and unit:
+        
+        imports_list = ['Pipeline Imports','LNG Imports']
+        exports_list = ['Pipeline Exports', 'LNG Exports']
+        
+        code_list_imports = [get_code(energy, i, unit) for i in imports_list]
+        code_list_exports = [get_code(energy, i, unit) for i in exports_list]
+
+        df_imports = get_nasdaq_table(
+                            code_id=code_list_imports, 
+                            country_id=country, 
+                            date_from_id=date_from, 
+                            date_to_id=date_to
+                            )
+        
+        df_exports = get_nasdaq_table(
+                            code_id=code_list_exports, 
+                            country_id=country, 
+                            date_from_id=date_from, 
+                            date_to_id=date_to
+                            )
+        
+        values_list_imports = [df_imports[df_imports['code'] == code]['value'].sum() for code in code_list_imports]
+        values_list_exports = [df_exports[df_exports['code'] == code]['value'].sum() for code in code_list_imports]
+
+                
+        for label, value in zip(imports_list,values_list_imports):
+            percentages = value/sum(values_list_imports) if sum(values_list_imports) != 0 else 0
+            results.append(f'{label}: {value:,.0f} ({percentages:.1%})')
+
+        for label, value in zip(exports_list, values_list_exports):
+            percentages = value/sum(values_list_exports) if sum(values_list_exports) != 0 else 0
+            results.append(f'{label}: {value:,.0f} ({percentages:.1%})')
+
+    return [html.H6(line) for line in results]
+
+
+
+
+
+
+
+
+
+'''
 def make_pie_chart(energy, country, unit, date_from, date_to, flow):
 
     fig = go.Figure()
@@ -471,3 +579,4 @@ def make_pie_chart(energy, country, unit, date_from, date_to, flow):
     fig.update_layout(transition_duration=500, legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1), xaxis_title='Time', yaxis_title=unit)
 
     return fig
+'''

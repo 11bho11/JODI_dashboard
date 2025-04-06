@@ -11,35 +11,37 @@ title = html.Div(
 
 controls = html.Div([
     html.Div([
-        html.H5('Select Country'),
+        html.H5('Pick a Country'),
         dcc.Dropdown(
                     options = [
                         {'label': i, 'value': j} for i,j in sf.country_dict.items()
                         ],
-                    value = 'GBR',
+                    value = 'USA',
                     id='country_id',
-                    className='dropdowns'
+                    className='dropdowns',
+                    clearable=False
                     ),
     ]),
     html.Div([
-        html.H5('Select Energy'),
+        html.H5('Filter by Energy'),
         dcc.Dropdown(
                     options = sf.energy_list, 
                     value = sf.energy_list[0],
                     id='energy_id',
-                    className='dropdowns'
+                    className='dropdowns',
+                    clearable=False
                     ),
     ]),
     html.Div([
-        html.H5('Select Unit'),
+        html.H5('Filter by Unit'),
         dcc.Dropdown(
-                   value=None,
+                   value= 'Thousand Barrels per day (kb/d)',
                    id='unit_id',
                    className='dropdowns'
                    ),
     ]),
     html.Div([
-        html.H5('Select Time Period'),
+        html.H5('Filter by Time Period'),
     ]),
     html.Div([
         html.H6('From'),
@@ -75,8 +77,15 @@ className= 'controls_box'
 
 
 summary = html.Div([
-    html.H5('Country Summary'),
-    html.Div(id='summary_id')
+    html.H5('Country-level Summary'),
+    html.H5(id='asofdate_id',
+            style={'margin-top':'0px',
+                   'margin-bottom':'20px'}
+            ),
+    dcc.Loading(
+                type='circle',
+                children=html.Div(id='summary_id')
+                )
     ],
     className= 'summary_box'
     )
@@ -84,10 +93,21 @@ summary = html.Div([
 
 
 line_chart = html.Div([
-    dcc.Dropdown(
+    html.Div([
+        html.H5(
+            'Product Breakdown', 
+            style={'margin-top':'10px'}
+            ),
+        dcc.Dropdown(
+                value = 'Crude Oil',
                 id='product_id',
                 className='dropdowns'
-                ), 
+                )
+    ], 
+    style = {
+            'display':'flex'
+            }
+    ),
     dcc.Loading(
             type='circle',
             children=dcc.Graph(
@@ -95,15 +115,25 @@ line_chart = html.Div([
                     id='line_chart_id',
                     className='line_chart'
                     ))
-],
-#className= 'line_box'
+]
 )
 
 bar_chart = html.Div([
-    dcc.Dropdown(
-                id='left_flow_id',
-                className='dropdowns'
-                ),
+    html.Div([
+        html.H5(
+            'Flow Breakdown',    
+            style={'margin-top':'10px'}
+            ),
+        dcc.Dropdown(
+                value = 'Production',
+                id='flow_id',
+                className='dropdowns',
+                )
+    ],
+    style = {
+            'display':'flex'
+            }
+    ),
     dcc.Loading(
             type='circle',
             children=dcc.Graph(
@@ -111,25 +141,17 @@ bar_chart = html.Div([
                     id='bar_chart_id',
                     className='bar_pie_chart'
                     ))
-],
-#className= 'bar_box'
+]
 )
 
-pie_chart = html.Div([
-    dcc.Dropdown(
-                id='right_flow_id',
-                className='dropdowns'
-                ),
+percentage_chart = html.Div([
     dcc.Loading(
             type='circle',
-            children=dcc.Graph(
-                    figure={}, 
-                    id='pie_chart_id',
-                    className='bar_pie_chart'
-                    ))
-],
-#className= 'pie_box'
-)
+            children=html.H6(id='percentage_id')
+            )
+])
+
+
 
 
 app = dash.Dash(external_stylesheets=[dbc.themes.FLATLY, dbc.icons.BOOTSTRAP])
@@ -148,11 +170,11 @@ app.layout = dbc.Container([
                 line_chart,
                 html.Div([
                         bar_chart,
-                        pie_chart
+                        percentage_chart
                         ],
                         style = {
                         'display':'flex'
-                        })
+                        }),
                 ],
                 className='column_right'
         )
@@ -171,14 +193,13 @@ className='dashboard_container'
 
 @app.callback(
     Output(component_id='summary_id', component_property='children'),
+    Output(component_id='asofdate_id', component_property='children'),
     Input(component_id='energy_id', component_property='value'),
     Input(component_id='country_id', component_property='value')
 )
 def update_summary(energy, country):
-    summary = sf.get_summary_data(energy, country)
-    return [html.H6(line) for line in summary]
-
-
+    summary, max_date = sf.get_summary_data(energy, country)
+    return [html.H6(line) for line in summary], f'({max_date})'
 
 
 @app.callback(
@@ -189,18 +210,6 @@ def hide_product_id(energy):
     if energy == sf.energy_list[2]:
         return {'display': 'none'} 
     return {'display': 'block'}  
-
-'''
-@app.callback(
-    Output(component_id='right_flow_id', component_property='style'),
-    Input(component_id='energy_id', component_property='value')
-)
-def hide_flow_id(energy):
-    if energy in [sf.energy_list[0],sf.energy_list[1]]:
-        return {'display': 'none'}  
-    elif energy == sf.energy_list[2]:
-        return {'display': 'block'}  
-'''
 
 
 @callback(
@@ -229,10 +238,10 @@ def update_product_id(energy):
 
 
 @callback(
-    Output(component_id='left_flow_id', component_property='options'),
+    Output(component_id='flow_id', component_property='options'),
     Input(component_id='energy_id', component_property='value'),
 )
-def update_left_flow_id(energy):
+def update_flow_id(energy):
     if energy == sf.energy_list[0]: 
         return [{'label': i, 'value': i} for i in sf.primary_oil_flow_dict.keys()]
     elif energy == sf.energy_list[1]:
@@ -240,18 +249,6 @@ def update_left_flow_id(energy):
     elif energy  == sf.energy_list[2]:
         return [{'label': i, 'value': i} for i in sf.gas_flow_dict.keys()]
     
-
-@callback(
-    Output(component_id='right_flow_id', component_property='options'),
-    Input(component_id='energy_id', component_property='value'),
-)
-def update_right_flow_id(energy):
-    if energy == sf.energy_list[0]: 
-        return [{'label': i, 'value': i} for i in sf.primary_oil_flow_dict.keys()]
-    elif energy == sf.energy_list[1]:
-        return [{'label': i, 'value': i} for i in sf.secondary_oil_flow_dict.keys()]
-    elif energy  == sf.energy_list[2]:
-        return [{'label': i, 'value': i} for i in ['Imports','Exports']]
 
 
 @callback(
@@ -274,23 +271,26 @@ def update_line_chart_id(energy, country, unit, date_from, date_to, product):
     Input(component_id='unit_id', component_property='value'),
     Input(component_id='date_from_id', component_property='value'),
     Input(component_id='date_to_id', component_property='value'),
-    Input(component_id='left_flow_id', component_property='value'),
+    Input(component_id='flow_id', component_property='value'),
     Input(component_id='product_id', component_property='value'),
 )
 def update_bar_chart_id(energy, country, unit, date_from, date_to, flow, product):
     return sf.make_bar_chart(energy, country, unit, date_from, date_to, flow, product)
 
+
+
+
 @callback(
-    Output(component_id='pie_chart_id', component_property='figure'),
+    Output(component_id='percentage_id', component_property='children'),
     Input(component_id='energy_id', component_property='value'),
     Input(component_id='country_id', component_property='value'),
     Input(component_id='unit_id', component_property='value'),
     Input(component_id='date_from_id', component_property='value'),
     Input(component_id='date_to_id', component_property='value'),
-    Input(component_id='right_flow_id', component_property='value'),
+    Input(component_id='flow_id', component_property='value'),
 )
-def update_pie_chart_id(energy, country, unit, date_from, date_to, flow):
-    return sf.make_pie_chart(energy, country, unit, date_from, date_to, flow)
+def update_percentage_id(energy, country, unit, date_from, date_to, flow):
+    return sf.make_percentage(energy, country, unit, date_from, date_to, flow)
 
 
 
