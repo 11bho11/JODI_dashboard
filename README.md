@@ -41,7 +41,7 @@ Run the main.py script and the app will be executed on your local machine.
 ## App Details
 There is a filter box located at the top-left which lets you filter by country, energy, unit, and dates.
 
-Below the filter box you can find a summary box with the energy products' most relevant or important information
+Below the filter box you can find a summary box with the energy products' most relevant or important information.
 
-Both charts on the right enables you to filter by both product and flow
+Both charts on the right enables you to filter by both product and flow.
 
