@@ -21,6 +21,9 @@ You will need to register an account to get an API key which is needed to run th
 
 ### Setup
 1. Clone the repository
+   ```
+   git clone https://github.com/benjaminho11/JODI_dashboard.git
+   ```
    
 2. Install required Python packages
    ```
