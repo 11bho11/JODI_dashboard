@@ -212,6 +212,7 @@ def hide_product_id(energy):
     return {'display': 'block'}  
 
 
+
 @callback(
     Output(component_id='unit_id', component_property='options'),
     Input(component_id='energy_id', component_property='value'),
