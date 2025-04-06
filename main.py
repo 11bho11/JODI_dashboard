@@ -2,7 +2,7 @@ import support_functions as sf
 from dash import dcc, html, callback, Output, Input
 import dash
 import dash_bootstrap_components as dbc
-
+import datetime as dt
 
 ############################# LAYOUT ################################################
 title = html.Div(
@@ -60,7 +60,7 @@ controls = html.Div([
     html.Div([
         html.H6('To'),
         dcc.Input(
-                value = '2025-01-01', 
+                value = dt.datetime.now().strftime("%Y-%m-%d"), 
                 placeholder='YYYY-MM-DD',
                 type='text',
                 id = 'date_to_id',

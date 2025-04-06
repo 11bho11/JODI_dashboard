@@ -182,7 +182,7 @@ def make_line_chart(energy, country, unit, date_from, date_to, product):
     fig = go.Figure(layout=des.layout_simple)
 
     if energy in [energy_list[0], energy_list[1]] and not product and not unit:
-        fig.update_layout(title='Please select a product to view all flows.')
+        fig.update_layout(title='Please select a product/unit to view all flows.')
 
     if energy in [energy_list[0], energy_list[1]] and not product:
         fig.update_layout(title='Please select a product to view all flows.')
