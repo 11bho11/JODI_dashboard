@@ -4,6 +4,7 @@ import dash
 import dash_bootstrap_components as dbc
 import datetime as dt
 
+
 ############################# LAYOUT ################################################
 title = html.Div(
             html.H1('JODI', style={'textAlign': 'center'})
