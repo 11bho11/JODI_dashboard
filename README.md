@@ -8,7 +8,7 @@ Data frequency is monthly. The data feed is updated monthly, with a 2-3 month la
 
 
 ## Why did I build this?
-As someone interested in the commodities markets, there are frustratingly only a few public energy databases such as EIA, IEA, and CFTC. The JODI database was freely available, but was difficult to access or analyse effectively. 
+There are frustratingly only a few public energy databases such as EIA, IEA, and CFTC that can be used to explore. The JODI database was freely available, but was difficult to access or analyse effectively. 
 
 While JODI data is accessible on Nasdaq Data Link, there was no interface for data visualisation, unlike other public databases like the EIA. Therefore, I built this project which does the following:
 - Automatically fetches live data via the Nasdaq Data Table API
@@ -40,9 +40,8 @@ You will need to register an account to get an API key which is needed to run th
 Run the main.py script to start the Dash app. Open your browser to view the dashboard.
 
 ## App Details
-Sidebar controls located at the top-left which lets you filter by country, energy, unit, and dates.
-
-Below the controls you can find a summary box with the most up-to-date or relevant information.
-
-Both charts on the right enables you to filter by both product and flow to show product breakdown by flow, or flow breakdown by product.
+![image](https://github.com/user-attachments/assets/bb7a1ab2-9025-46c9-8fa8-867d74266fd7)
+- Sidebar controls located at the top-left which lets you filter by country, energy, unit, and dates.
+- Below the controls you can find a summary box with the most up-to-date or relevant information.
+- Charts on the right enables you to filter by both product and flow to show product breakdown by flow, or flow breakdown by product.
 
