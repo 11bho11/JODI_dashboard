@@ -1,10 +1,11 @@
 # JODI Exploratory Dashboard        
 
-This is a Dash (Plotly) interactive dashboard to view data from the JODI World Database, developed with Python.
+This repository contains the code for setting up a Dash (Plotly) interactive dashboard to view data from the JODI World Database, developed with Python. The project aims to facilitate exploratory analysis on oil and gas product flows.
 
 The JODI (Joint Organisations Data Initiative) World database consists of oil & gas data for over 120 countries, with historical data dating back to Jan 2002. The goal of the database is to provide a transparent and reliable platform for oil & gas data. Learn more about the history of JODI [here](https://www.ief.org/jodi/history). 
 
 Data frequency is monthly. The data feed is updated monthly, with a 2-3 month lag period. Find more about JODI release dates [here](https://www.jodidata.org/). 
+
 
 ## Why did I build this?
 
@@ -16,7 +17,20 @@ Luckily, I found out that the JODI was accessible for free via Nasdaq. However, 
 ## Getting Started
 The JODI World database is available via the Nasdaq Data Link Tables API for free. Check out more on Nasdaq's website [here](https://data.nasdaq.com/databases/JODI#:~:text=This%20database%20provides%20comprehensive%20and,from%20production%20to%20end%20use.) 
 
-You will need to signup here and register an account to get an API key.
+You will need to register an account to get an API key which is needed to run the app. 
+
+### Setup
+1. Clone the repository
+   
+2. Install required Python packages
+   ```
+   pip install -r requirements.txt
+   ```
+   
+3. Set up your environment variables in a `.env` file to store API credentials securely.
+
+### Usage
+Run the main.py script and the app will be executed on your local machine.
 
 ## App Details
 
